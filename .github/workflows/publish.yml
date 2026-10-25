@@ -1,0 +1,54 @@
+name: Publish to NPM
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'build.mjs'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Setup Git user
+        run: |
+          git config --global user.name "Zireku Bot"
+          git config --global user.email "bot@zireku.com"
+
+      - name: Bump version (patch)
+        run: |
+          npm version patch -m "chore(release): bump version to %s [skip ci]"
+
+      - name: Build and obfuscate
+        run: npm run build
+
+      - name: Commit build and push tag
+        run: |
+          git add lib/ package.json
+          git commit -m "build: update obfuscated shield for new version [skip ci]" || echo "No changes"
+          git push origin main --follow-tags
+
+      - name: Publish to NPM Registry
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

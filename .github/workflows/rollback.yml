@@ -1,0 +1,31 @@
+name: Rollback NPM Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_version:
+        description: 'Versi stabil yang ingin dijadikan latest kembali (contoh: 1.0.1)'
+        required: true
+        default: '1.0.1'
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Revert NPM dist-tag
+        run: |
+          echo "Memindahkan dist-tag latest ke versi ${{ github.event.inputs.target_version }}..."
+          npm dist-tag add zireku-ls@${{ github.event.inputs.target_version }} latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Verification
+        run: |
+          echo "Status dist-tags saat ini:"
+          npm dist-tag ls zireku-ls

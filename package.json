@@ -1,0 +1,23 @@
+{
+  "name": "zireku-ls",
+  "version": "1.0.1",
+  "description": "Zireku License Shield & Environment Security Core",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./lib/index.js"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Zireku Developer",
+  "license": "ISC",
+  "devDependencies": {
+    "javascript-obfuscator": "^5.9.0"
+  }
+}
