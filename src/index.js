@@ -72,7 +72,7 @@ function isNewerVersion(remote, local) {
 function displayUpdateBanner(currentVersion, latestVersion) {
   const ANSI_YELLOW_BOLD = '\x1b[1;33m';
   const ANSI_RESET = '\x1b[0m';
-  console.log(`${ANSI_YELLOW_BOLD}[UPDATE] New version available: v${latestVersion} (Current: v${currentVersion})${ANSI_RESET}`);
+  console.log(`${ANSI_YELLOW_BOLD}warning! update is available @zireku-ls'${latestVersion}', update : npm run update${ANSI_RESET}`);
 }
 
 export async function checkForUpdates(currentVersion = PACKAGE_VERSION) {
