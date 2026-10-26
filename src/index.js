@@ -8,7 +8,7 @@
 import http from 'node:http';
 import https from 'node:https';
 
-export const PACKAGE_VERSION = '1.0.7';
+export const PACKAGE_VERSION = '1.0.9';
 
 let isVerified = false;
 let verifiedIp = null;
@@ -72,7 +72,7 @@ function isNewerVersion(remote, local) {
 function displayUpdateBanner(currentVersion, latestVersion) {
   const ANSI_YELLOW_BOLD = '\x1b[1;33m';
   const ANSI_RESET = '\x1b[0m';
-  console.log(`${ANSI_YELLOW_BOLD}warning! update is available @zireku-ls'${latestVersion}', update : npm run update${ANSI_RESET}`);
+  console.log(`${ANSI_YELLOW_BOLD}warning! update is available @zireku-ls'${latestVersion}', update : npm install zireku-ls@${latestVersion}${ANSI_RESET}`);
 }
 
 export async function checkForUpdates(currentVersion = PACKAGE_VERSION) {
