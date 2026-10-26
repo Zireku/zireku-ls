@@ -8,7 +8,7 @@
 import http from 'node:http';
 import https from 'node:https';
 
-export const PACKAGE_VERSION = '1.0.1';
+export const PACKAGE_VERSION = '1.0.7';
 
 let isVerified = false;
 let verifiedIp = null;
@@ -171,10 +171,11 @@ export async function verifyLicense() {
         verifiedIp = currentIp;
         securityToken = result.signature || Buffer.from(`ZIREKU_SEC_${currentIp}`).toString('hex');
 
-        // Clear in-place pending line cleanly
-        process.stdout.write('\r\x1b[K');
-
-        console.log(`${ANSI_GREEN_BOLD}Your IP address is allowed ${currentIp} !${ANSI_RESET}`);
+        // Clear in-place pending line cleanly if it was waiting
+        if (showedDeniedBanner) {
+          process.stdout.write('\r\x1b[K');
+          console.log(`${ANSI_GREEN_BOLD}Your IP address is allowed ${currentIp} !${ANSI_RESET}`);
+        }
 
         // Check for updates asynchronously in background (fail-safe)
         if (result.latestVersion && isNewerVersion(result.latestVersion, PACKAGE_VERSION)) {

@@ -1,6 +1,6 @@
 {
   "name": "zireku-ls",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "Zireku License Shield & Environment Security Core",
   "main": "lib/index.js",
   "module": "lib/index.js",
