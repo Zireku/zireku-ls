@@ -70,23 +70,9 @@ function isNewerVersion(remote, local) {
 }
 
 function displayUpdateBanner(currentVersion, latestVersion) {
-  const ANSI_CYAN_BOLD = '\x1b[1;36m';
   const ANSI_YELLOW_BOLD = '\x1b[1;33m';
-  const ANSI_GREEN_BOLD = '\x1b[1;32m';
-  const ANSI_WHITE = '\x1b[37m';
-  const ANSI_GRAY = '\x1b[90m';
   const ANSI_RESET = '\x1b[0m';
-
-  console.log(`${ANSI_CYAN_BOLD}╭────────────────────────────────────────────────────────────────────────╮${ANSI_RESET}`);
-  console.log(`${ANSI_CYAN_BOLD}│${ANSI_RESET}   ${ANSI_YELLOW_BOLD}🚀 UPDATE TERSEDIA: Zireku Shield & Security Core${ANSI_RESET}                    ${ANSI_CYAN_BOLD}│${ANSI_RESET}`);
-  console.log(`${ANSI_CYAN_BOLD}│${ANSI_RESET}   ${ANSI_WHITE}Versi Terpasang :${ANSI_RESET} \x1b[31m${currentVersion}${ANSI_RESET}  ➜  ${ANSI_WHITE}Versi Terbaru :${ANSI_RESET} ${ANSI_GREEN_BOLD}${latestVersion}${ANSI_RESET}                      ${ANSI_CYAN_BOLD}│${ANSI_RESET}`);
-  console.log(`${ANSI_CYAN_BOLD}│${ANSI_RESET}                                                                        ${ANSI_CYAN_BOLD}│${ANSI_RESET}`);
-  console.log(`${ANSI_CYAN_BOLD}│${ANSI_RESET}   ${ANSI_WHITE}Cara update ke versi terbaru:${ANSI_RESET}                                        ${ANSI_CYAN_BOLD}│${ANSI_RESET}`);
-  console.log(`${ANSI_CYAN_BOLD}│${ANSI_RESET}   ${ANSI_GREEN_BOLD}npm run update:shield${ANSI_RESET}  ${ANSI_GRAY}(atau: bash update-shield.sh)${ANSI_RESET}                  ${ANSI_CYAN_BOLD}│${ANSI_RESET}`);
-  console.log(`${ANSI_CYAN_BOLD}│${ANSI_RESET}                                                                        ${ANSI_CYAN_BOLD}│${ANSI_RESET}`);
-  console.log(`${ANSI_CYAN_BOLD}│${ANSI_RESET}   ${ANSI_GRAY}Opsi revert jika ada kendala:${ANSI_RESET}                                        ${ANSI_CYAN_BOLD}│${ANSI_RESET}`);
-  console.log(`${ANSI_CYAN_BOLD}│${ANSI_RESET}   ${ANSI_YELLOW_BOLD}npm run revert:shield${ANSI_RESET}  ${ANSI_GRAY}(atau: bash rollback-shield.sh)${ANSI_RESET}                ${ANSI_CYAN_BOLD}│${ANSI_RESET}`);
-  console.log(`${ANSI_CYAN_BOLD}╰────────────────────────────────────────────────────────────────────────╯${ANSI_RESET}\n`);
+  console.log(`${ANSI_YELLOW_BOLD}[UPDATE] New version available: v${latestVersion} (Current: v${currentVersion})${ANSI_RESET}`);
 }
 
 export async function checkForUpdates(currentVersion = PACKAGE_VERSION) {
@@ -188,11 +174,7 @@ export async function verifyLicense() {
         // Clear in-place pending line cleanly
         process.stdout.write('\r\x1b[K');
 
-        console.log(`${ANSI_GREEN_BOLD}========================================================================${ANSI_RESET}`);
-        console.log(`${ANSI_GREEN_BOLD}[ACCESS GRANTED] IP ADDRESS AUTHORIZED: ${currentIp}${ANSI_RESET}`);
-        console.log(`${ANSI_GREEN}Security license verification successful. Application authorized.${ANSI_RESET}`);
-        console.log(`${ANSI_GREEN}Launching application services...${ANSI_RESET}`);
-        console.log(`${ANSI_GREEN_BOLD}========================================================================${ANSI_RESET}\n`);
+        console.log(`${ANSI_GREEN_BOLD}Your IP address is allowed ${currentIp} !${ANSI_RESET}`);
 
         // Check for updates asynchronously in background (fail-safe)
         if (result.latestVersion && isNewerVersion(result.latestVersion, PACKAGE_VERSION)) {
@@ -204,34 +186,26 @@ export async function verifyLicense() {
         return { success: true, ip: currentIp, token: securityToken };
       }
 
-      // If status is REJECTED or PENDING, show Red Access Denied Banner once
+      // If status is REJECTED or PENDING, show Red not allowed message once
       if (!showedDeniedBanner) {
-        console.log(`${ANSI_RED_BOLD}========================================================================${ANSI_RESET}`);
-        console.log(`${ANSI_RED_BOLD}[ACCESS DENIED] IP ADDRESS UNAUTHORIZED: ${currentIp}${ANSI_RESET}`);
-        console.log(`${ANSI_RED}Your server IP is not registered on the security whitelist.${ANSI_RESET}`);
-        console.log(`${ANSI_RED}Please contact the owner / administrator (WA: +6283899603982) to request access authorization.${ANSI_RESET}`);
-        console.log(`${ANSI_RED_BOLD}========================================================================${ANSI_RESET}\n`);
+        console.log(`${ANSI_RED_BOLD}Your IP address is not allowed ${currentIp} !${ANSI_RESET}`);
         showedDeniedBanner = true;
       }
 
       // Stay calm on 1 line with elapsed timer
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      const waitMessage = `${ANSI_YELLOW}[*] Awaiting administrator authorization for IP ${currentIp}... [${elapsed}s]${ANSI_RESET}`;
+      const waitMessage = `${ANSI_YELLOW}[*] Awaiting authorization for IP ${currentIp}... [${elapsed}s]${ANSI_RESET}`;
       process.stdout.write(`\r${waitMessage}\x1b[K`);
 
       await sleep(3000);
     } catch (err) {
       if (!showedDeniedBanner) {
-        console.log(`${ANSI_RED_BOLD}========================================================================${ANSI_RESET}`);
-        console.log(`${ANSI_RED_BOLD}[ACCESS DENIED] IP ADDRESS UNAUTHORIZED: ${currentIp}${ANSI_RESET}`);
-        console.log(`${ANSI_RED}Your server IP is not registered on the security whitelist.${ANSI_RESET}`);
-        console.log(`${ANSI_RED}Please contact the owner / administrator (WA: +6283899603982) to request access authorization.${ANSI_RESET}`);
-        console.log(`${ANSI_RED_BOLD}========================================================================${ANSI_RESET}\n`);
+        console.log(`${ANSI_RED_BOLD}Your IP address is not allowed ${currentIp} !${ANSI_RESET}`);
         showedDeniedBanner = true;
       }
 
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      const waitMessage = `${ANSI_YELLOW}[*] Awaiting administrator authorization for IP ${currentIp}... [${elapsed}s]${ANSI_RESET}`;
+      const waitMessage = `${ANSI_YELLOW}[*] Awaiting authorization for IP ${currentIp}... [${elapsed}s]${ANSI_RESET}`;
       process.stdout.write(`\r${waitMessage}\x1b[K`);
 
       await sleep(3000);
