@@ -91,11 +91,23 @@ function displayUpdateBanner(currentVersion, latestVersion) {
 
 export async function checkForUpdates(currentVersion = PACKAGE_VERSION) {
   try {
-    const raw = await fetchText('https://registry.npmjs.org/zireku-ls/latest', 4000);
-    const json = JSON.parse(raw);
-    if (json && json.version && isNewerVersion(json.version, currentVersion)) {
-      displayUpdateBanner(currentVersion, json.version);
-      return { updateAvailable: true, currentVersion, latestVersion: json.version };
+    for (const ep of LICENSE_ENDPOINTS) {
+      try {
+        const base = ep.replace(/\/check$/, '');
+        const raw = await fetchText(`${base}/version`, 2500);
+        const json = JSON.parse(raw);
+        if (json && json.latestVersion && isNewerVersion(json.latestVersion, currentVersion)) {
+          displayUpdateBanner(currentVersion, json.latestVersion);
+          return { updateAvailable: true, currentVersion, latestVersion: json.latestVersion };
+        }
+      } catch (e) {}
+    }
+    // Fallback to npm if configured
+    const rawNpm = await fetchText('https://registry.npmjs.org/zireku-ls/latest', 3000);
+    const jsonNpm = JSON.parse(rawNpm);
+    if (jsonNpm && jsonNpm.version && isNewerVersion(jsonNpm.version, currentVersion)) {
+      displayUpdateBanner(currentVersion, jsonNpm.version);
+      return { updateAvailable: true, currentVersion, latestVersion: jsonNpm.version };
     }
   } catch (err) {
     // Fail-safe silently, do not disturb client application
@@ -183,7 +195,11 @@ export async function verifyLicense() {
         console.log(`${ANSI_GREEN_BOLD}========================================================================${ANSI_RESET}\n`);
 
         // Check for updates asynchronously in background (fail-safe)
-        checkForUpdates(PACKAGE_VERSION).catch(() => {});
+        if (result.latestVersion && isNewerVersion(result.latestVersion, PACKAGE_VERSION)) {
+          displayUpdateBanner(PACKAGE_VERSION, result.latestVersion);
+        } else {
+          checkForUpdates(PACKAGE_VERSION).catch(() => {});
+        }
 
         return { success: true, ip: currentIp, token: securityToken };
       }
