@@ -7,12 +7,29 @@
 
 import http from 'node:http';
 import https from 'node:https';
+import crypto from 'node:crypto';
 
-export const PACKAGE_VERSION = '1.0.10';
+export const PACKAGE_VERSION = '1.0.11';
 
 let isVerified = false;
 let verifiedIp = null;
 let securityToken = null;
+
+const PROJECT_ID = 'smsvirtual.web';
+const PROJECT_SALT = 'SMSVIRTUAL_CORE_SECRET_V1_ZIREKU_98234';
+
+function generateProjectSignature(ip) {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const nonce = crypto.randomBytes(8).toString('hex');
+  const payload = `${PROJECT_ID}:${timestamp}:${ip}:${nonce}`;
+  const signature = crypto.createHmac('sha256', PROJECT_SALT).update(payload).digest('hex');
+  return {
+    project: PROJECT_ID,
+    timestamp: String(timestamp),
+    nonce,
+    signature
+  };
+}
 
 const IP_SOURCES = [
   'https://api.ipify.org',
@@ -26,12 +43,19 @@ const LICENSE_ENDPOINTS = [
   'http://localhost:3500/check'
 ];
 
-function fetchText(urlStr, timeoutMs = 8000) {
+function fetchText(urlStr, timeoutMs = 8000, extraHeaders = {}) {
   return new Promise((resolve, reject) => {
     try {
       const parsedUrl = new URL(urlStr);
       const client = parsedUrl.protocol === 'https:' ? https : http;
-      const req = client.get(parsedUrl, { timeout: timeoutMs }, (res) => {
+      const options = {
+        timeout: timeoutMs,
+        headers: {
+          'user-agent': `SMSVirtual-Client-Engine/${PACKAGE_VERSION}`,
+          ...extraHeaders
+        }
+      };
+      const req = client.get(parsedUrl, options, (res) => {
         let data = '';
         res.on('data', chunk => { data += chunk; });
         res.on('end', () => {
@@ -116,15 +140,23 @@ async function detectPublicIp() {
 }
 
 async function queryLicenseServer(ip) {
+  const handshake = generateProjectSignature(ip);
+  const extraHeaders = {
+    'x-zireku-project': handshake.project,
+    'x-zireku-timestamp': handshake.timestamp,
+    'x-zireku-nonce': handshake.nonce,
+    'x-zireku-signature': handshake.signature
+  };
+
   for (const endpoint of LICENSE_ENDPOINTS) {
     try {
-      const raw = await fetchText(`${endpoint}?ip=${encodeURIComponent(ip)}`, 6000);
+      const raw = await fetchText(`${endpoint}?ip=${encodeURIComponent(ip)}`, 6000, extraHeaders);
       const json = JSON.parse(raw);
       if (json && json.status) {
         return json;
       }
     } catch (err) {
-      // try next endpoint
+      /* continue to next endpoint */
     }
   }
   return { status: 'PENDING', message: `Awaiting authorization for IP ${ip}...` };
