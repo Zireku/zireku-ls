@@ -8,7 +8,7 @@
 import http from 'node:http';
 import https from 'node:https';
 
-export const PACKAGE_VERSION = '1.0.9';
+export const PACKAGE_VERSION = '1.0.10';
 
 let isVerified = false;
 let verifiedIp = null;
