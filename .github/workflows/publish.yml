@@ -46,6 +46,7 @@ jobs:
         run: |
           git add lib/ package.json
           git commit -m "build: update obfuscated shield for new version [skip ci]" || echo "No changes"
+          git pull --rebase origin main
           git push origin main --follow-tags
 
       - name: Publish to NPM Registry
