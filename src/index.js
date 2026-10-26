@@ -1,6 +1,7 @@
 /**
  * ZIREKU LICENSE & SECURITY SHIELD
  * (C) 2026 Zireku Developer Owner. All Rights Reserved.
+ * Automated release pipeline enabled.
  * Unauthorized duplication, redistribution, or reverse engineering is strictly prohibited.
  */
 
