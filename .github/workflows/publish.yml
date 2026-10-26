@@ -42,14 +42,13 @@ jobs:
       - name: Build and obfuscate
         run: npm run build
 
-      - name: Commit build and push tag
-        run: |
-          git add lib/ package.json
-          git commit -m "build: update obfuscated shield for new version [skip ci]" || echo "No changes"
-          git pull --rebase origin main
-          git push origin main --follow-tags
-
       - name: Publish to NPM Registry
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit build and push tag
+        run: |
+          git add lib/ package.json
+          git commit -m "build: update obfuscated shield for new version [skip ci]" || echo "No changes"
+          git push origin main --follow-tags
